@@ -1,6 +1,11 @@
 package org.comstudy21.member.model;
 
-public class MemberDTO {
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+public class MemberDTO implements Externalizable  {
 	private int idx;
 	private String name;
 	private String email;
@@ -84,5 +89,21 @@ public class MemberDTO {
 		} catch (Exception e) { }
 		
 		return null;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(idx);
+		out.writeObject(name);
+		out.writeObject(email);
+		out.writeObject(phone);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		idx = (Integer)in.readObject();
+		name = (String)in.readObject();
+		email = (String)in.readObject();
+		phone = (String)in.readObject();
 	}
 }

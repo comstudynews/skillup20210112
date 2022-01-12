@@ -1,12 +1,18 @@
 package org.comstudy21.member.model;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
 public class MemberDAO {
-	private static final Vector<MemberDTO> memList = new Vector<MemberDTO>();
+	private static Vector<MemberDTO> memList = new Vector<MemberDTO>();
 	private static int sequence = 1;
 	static {
 		memList.add(new MemberDTO(sequence++, "홍길동", "hong@a.com", "010-1111-1111"));
@@ -16,6 +22,7 @@ public class MemberDAO {
 	}
 	
 	public List<MemberDTO> selectAll() {
+		memList = (Vector<MemberDTO>)fileLoad();
 		List<MemberDTO> list = new ArrayList<MemberDTO>();
 		for(MemberDTO mem : memList) {
 			list.add((MemberDTO)mem.clone());
@@ -56,16 +63,63 @@ public class MemberDAO {
 		}
 	}
 	
+	File file = new File("member.dat");
 	public List<MemberDTO> fileLoad() {
-		return null;
+		List<MemberDTO> list = null;
+		FileInputStream fis = null;
+		ObjectInputStream ois = null;
+		
+		try {
+			fis = new FileInputStream(file);
+			ois = new ObjectInputStream(fis);
+			list = (List<MemberDTO>)ois.readObject();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(ois != null)
+				try {
+					ois.close();
+					fis.close();
+				} catch (IOException e) {}
+		}
+		
+		memList = (Vector<MemberDTO>) list;
+		return list;
 	}
 	
 	public boolean fileSave(List<MemberDTO> list) {
-		return false;
+		// memList저장하기
+		FileWriter fw = null;
+		FileOutputStream fos = null;
+		ObjectOutputStream oos = null;
+		boolean b = false;
+		try {
+			 fos = new FileOutputStream(file);
+			 oos = new ObjectOutputStream(fos);
+			 oos.writeObject(memList);
+			 b = true;
+		} catch (IOException e) {
+			
+		} finally {
+			try {
+				if(oos != null) oos.close();
+				if(fos != null) fos.close();
+			} catch (IOException e) { }
+		}
+		
+		return b;
 	}
 
 	public void insert(MemberDTO memberDTO) {
 		memberDTO.setIdx(sequence++);
 		memList.add(memberDTO);
+		
+		if(fileSave(memList)) {
+			System.out.println(">>> 파일 저장 완료!");
+		} else {
+			System.out.println(">>> 파일 쓰기 오류!");
+		}
 	}
 }
