@@ -11,9 +11,15 @@ public class DispatcherController {
 		//view = new InputController().hadleRequest();
 		//view = new MenuController().hadleRequest();
 		
-		ctrl = ctrlMapper.get(no);
-		view = ctrl.hadleRequest();
-		mainActivity.setContentView(view);
+		if(no == INPUT) {
+			mainActivity.setContentView(input);
+			ctrl = ctrlMapper.get(INPUT);
+			ctrl.hadleRequest();
+		} else {
+			ctrl = ctrlMapper.get(no);
+			view = ctrl.hadleRequest();
+			mainActivity.setContentView(view);
+		}
 		
 		run(); // 재귀호출
 	}
